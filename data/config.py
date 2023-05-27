@@ -1,11 +1,6 @@
-from environs import Env
-
-# environs kutubxonasidan foydalanish
-env = Env()
-env.read_env()
 # .env fayl ichidan quyidagilarni o'qiymiz
-BOT_TOKEN = env.str("BOT_TOKEN")  # Bot toekn
-ADMINS = env.list("ADMINS")  # adminlar ro'yxati
+BOT_TOKEN = ("6077829811:AAF7b5cu-NO0OzFNiccrV47vt2aAEt2m7Fs")  # Bot toekn
+ADMINS = 982935447  # adminlar ro'yxati
 CHANNELS = ["-1001936698333",'@biomaqsad']
 
 KEY = [
