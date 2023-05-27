@@ -6,9 +6,8 @@ from data.config import ADMINS
 
 
 async def on_startup_notify(dp: Dispatcher):
-    for admin in ADMINS:
-        try:
-            await dp.bot.send_message(admin, "Bot faollashdi!")
+    try:
+        await dp.bot.send_message(chat_id=982935447, text="Bot faollashdi!")
 
-        except Exception as err:
-            logging.exception(err)
+    except Exception as err:
+        logging.exception(err)
