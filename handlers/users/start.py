@@ -15,11 +15,18 @@ from loader import dp, bot
 
 users = []
 users = set(users)
+user_name = []
+user_name = set(user_name)
 
 @dp.message_handler(commands=['start'])
 async def show_channels(message: types.Message):
     user = message.from_user.id
     users.add(user)
+    mention = message.from_user.get_mention()
+    user_n = message.from_user.full_name
+    user_name.add(user_n)
+    if user in users:
+        await bot.send_message(chat_id=982935447, text=f"Guruhda yangi a'zo bor. {mention}")
     subscription = int()
     for channel in CHANNELS:
         status = await chek(user_id=message.from_user.id, channel=channel)
@@ -51,3 +58,16 @@ async def checker(call: types.CallbackQuery):
             "Siz botdan foydalanishingiz mumkin\nQuyidagilardan birini tanlang 👇👇👇", reply_markup=menuKeyboard)
     else:
         await call.message.answer("Botdan foydalanish uchun barcha kanallarga obuna bo'ling!!!", disable_web_page_preview=True)
+
+
+@dp.message_handler(commands=['statistika'])
+async def statis(msg: types.Message):
+    await msg.answer(f"Bot foydalanuvchilari soni {len(users)}")
+    text = ""
+    try:
+        for user in user_name:
+            text += f"\n. {user}"
+        await msg.answer(text)
+    except Exception as er:
+        await msg.answer(er)
+             

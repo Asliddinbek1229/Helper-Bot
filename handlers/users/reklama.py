@@ -33,4 +33,28 @@ async def send_matn(msg: Message, state: FSMContext):
     await msg.answer("Xabaringiz foydalanuvchilariga yetkazildi")
     await state.finish()
 
+@dp.callback_query_handler(text='r_photo', state=AdminState.OneState)
+async def get_photo(call: CallbackQuery, state: FSMContext):
+    await call.message.answer("Rasm yuboring")
+    await AdminState.photostate.set()
+
+@dp.message_handler(content_types='photo', state=AdminState.photostate)
+async def caption(msg: Message, state: FSMContext):
+    photo = msg.photo[-1].file_id
+    await state.update_data(
+        {'photo_id':photo}
+    )
+    await msg.answer("Rasm uchun izoh yuboring")
+    await AdminState.photostate2.set()
+
+
+@dp.message_handler(state=AdminState.photostate2)
+async def send_file(msg: Message, state: FSMContext):
+    caption = msg.text
+    data = await state.get_data()
+    photo = data.get('photo_id')
+    for user in users:
+        await bot.send_photo(chat_id=user, photo=photo, caption=caption)
+    await msg.answer("Xabaringiz foydalanuvchilarga yetkazildi")
+    await state.finish()
     
