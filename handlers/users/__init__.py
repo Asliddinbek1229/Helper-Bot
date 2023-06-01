@@ -1,7 +1,6 @@
 from . import help
 from . import start
 from . import reklama
-from . import prayerTimes
 from . import tarjimon
 from . import imloHandler
 from . import speakHandler

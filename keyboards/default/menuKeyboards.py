@@ -5,9 +5,6 @@ menuKeyboard = ReplyKeyboardMarkup(
     resize_keyboard=True,
     keyboard=[
         [
-            KeyboardButton(text="🕋 Namoz vaqtlarini ko'rish"),
-        ],
-        [
             KeyboardButton(text="🔁 Tarjimon"),
             KeyboardButton(text="🌐 Wikipedia"),
         ],
