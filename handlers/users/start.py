@@ -1,32 +1,32 @@
 import logging
+import sqlite3
 
 from aiogram import types
-from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.filters import Command
 
 from keyboards.inline.subscription import chek_button
 from keyboards.default.menuKeyboards import menuKeyboard
 from utils.misc.subscription import chek
-from data.config import CHANNELS
+from data.config import CHANNELS, ADMINS
 
 from filters import AdminFilter
 
-from loader import dp, bot
+from loader import dp, bot, db
 
-users = []
-users = set(users)
-user_name = []
-user_name = set(user_name)
 
-@dp.message_handler(commands=['start'])
+@dp.message_handler(Command('start'))
 async def show_channels(message: types.Message):
     user = message.from_user.id
-    users.add(user)
-    mention = message.from_user.get_mention()
-    user_n = message.from_user.full_name
-    user_name.add(user_n)
-    if user in users:
-        await bot.send_message(chat_id=982935447, text=f"Guruhda yangi a'zo bor. {mention}")
+    name = message.from_user.full_name
+    try:
+        db.add_user(id=user, name=name)
+    except sqlite3.IntegrityError as err:
+        await bot.send_message(chat_id=982935447, text=err)
+
+    count = db.count_users()[0]
+    msg = f"{message.from_user.full_name} bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor"
+    await bot.send_message(chat_id=982935447, text=msg)
+
     subscription = int()
     for channel in CHANNELS:
         status = await chek(user_id=message.from_user.id, channel=channel)
@@ -62,12 +62,18 @@ async def checker(call: types.CallbackQuery):
 
 @dp.message_handler(commands=['statistika'])
 async def statis(msg: types.Message):
-    await msg.answer(f"Bot foydalanuvchilari soni {len(users)}")
-    text = ""
-    try:
-        for user in user_name:
-            text += f"\n. {user}"
-        await msg.answer(text)
-    except Exception as er:
-        await msg.answer(er)
+    users = db.select_all_users()
+    msg2 = f"Bot foydalanuvchilari soni {len(users)}"
+    foydalanuvchi = ""
+    num = 0
+    for user in users:
+        id = user[0]
+        name = user[1]
+        num += 1
+        foydalanuvchi += f"\n{num}) {name}. {id}"
+    await msg.answer(f"{msg2}\n"
+                     f"{foydalanuvchi}")
+        
+
+
              

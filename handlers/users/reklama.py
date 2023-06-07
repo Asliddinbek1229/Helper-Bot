@@ -4,9 +4,8 @@ from aiogram.dispatcher import FSMContext
 from states.adminState import AdminState
 from keyboards.inline.reklamaKB import rek_kb
 
-from loader import dp, bot
-
-from handlers.users.start import users
+from loader import dp, bot, db
+import time
 
 
 
@@ -27,9 +26,12 @@ async def send_text(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=AdminState.textState)
 async def send_matn(msg: Message, state: FSMContext):
+    users = db.select_all_users()
     reklama = msg.text
-    for user_id in users:
+    for user in users:
+        user_id = user[0]
         await bot.send_message(chat_id=user_id, text=reklama)
+        time.sleep(1)
     await msg.answer("Xabaringiz foydalanuvchilariga yetkazildi")
     await state.finish()
 
@@ -50,11 +52,14 @@ async def caption(msg: Message, state: FSMContext):
 
 @dp.message_handler(state=AdminState.photostate2)
 async def send_file(msg: Message, state: FSMContext):
+    users = db.select_all_users()
     caption = msg.text
     data = await state.get_data()
     photo = data.get('photo_id')
     for user in users:
-        await bot.send_photo(chat_id=user, photo=photo, caption=caption)
+        user_id = user[0]
+        await bot.send_photo(chat_id=user_id, photo=photo, caption=caption)
+        time.sleep(1)
     await msg.answer("Xabaringiz foydalanuvchilarga yetkazildi")
     await state.finish()
     
