@@ -9,7 +9,8 @@ from keyboards.default.menuKeyboards import menuKeyboard
 from utils.misc.subscription import chek
 from data.config import CHANNELS, ADMINS
 
-from filters import AdminFilter
+from states.add_userState import AddState
+from aiogram.dispatcher import FSMContext
 
 from loader import dp, bot, db
 
@@ -74,6 +75,34 @@ async def statis(msg: types.Message):
     await msg.answer(f"{msg2}\n"
                      f"{foydalanuvchi}")
         
+
+@dp.message_handler(Command('add_user'))
+async def add_user(msg: types.Message):
+    await msg.answer("Marhamat Id va name yuboring")
+    await AddState.add_user1.set()
+
+
+@dp.message_handler(state=AddState.add_user1)
+async def add_us(msg: types.Message, state: FSMContext):
+    try:
+        message = msg.text.split()
+        id = message[0]
+        name = message[1]
+        try:
+            db.add_user(id=id, name=name)
+            await state.finish()
+            await msg.answer("Foydalanuvchi bazaga qo'shildi")
+        except sqlite3.IntegrityError as err:
+            await bot.send_message(chat_id=982935447, text=err)
+            await state.finish()
+    except:
+        await msg.reply("Nimadur xato ketti")
+        await state.finish()
+
+
+
+
+
 
 
              

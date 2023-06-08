@@ -5,7 +5,7 @@ from states.adminState import AdminState
 from keyboards.inline.reklamaKB import rek_kb
 
 from loader import dp, bot, db
-import time
+import asyncio
 
 
 
@@ -26,13 +26,24 @@ async def send_text(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=AdminState.textState)
 async def send_matn(msg: Message, state: FSMContext):
+    rek = msg.text
     users = db.select_all_users()
-    reklama = msg.text
+    x = 0
+    y = 0
+    i = await msg.answer("✅ Reklama yuborilyapti, iltimos kutib turing...")
     for user in users:
-        user_id = user[0]
-        await bot.send_message(chat_id=user_id, text=reklama)
-        time.sleep(1)
-    await msg.answer("Xabaringiz foydalanuvchilariga yetkazildi")
+        try:
+            await bot.send_message(chat_id=user[0],
+                                   text=rek)
+            await asyncio.sleep(0.05)
+            x += 1
+        except:
+            y += 1
+
+    await i.delete()
+    await msg.answer("<b>✅ Reklama yuborildi</b>\n\n"
+                         f"Qabul qildi: {x} ta\n"
+                         f"Yuborilmadi: {y} ta")
     await state.finish()
 
 @dp.callback_query_handler(text='r_photo', state=AdminState.OneState)
@@ -56,10 +67,31 @@ async def send_file(msg: Message, state: FSMContext):
     caption = msg.text
     data = await state.get_data()
     photo = data.get('photo_id')
+    x = 0
+    y = 0
+    i = await msg.answer("✅ Reklama yuborilyapti, iltimos kutib turing...")
     for user in users:
-        user_id = user[0]
-        await bot.send_photo(chat_id=user_id, photo=photo, caption=caption)
-        time.sleep(1)
-    await msg.answer("Xabaringiz foydalanuvchilarga yetkazildi")
+        try:
+            await bot.send_photo(chat_id=user[0],
+                                   photo=photo,
+                                   caption=caption)
+            await asyncio.sleep(0.05)
+            x += 1
+        except:
+            y += 1
+
+    await i.delete()
+    await msg.answer("<b>✅ Reklama yuborildi</b>\n\n"
+                         f"Qabul qildi: {x} ta\n"
+                         f"Yuborilmadi: {y} ta")
     await state.finish()
     
+
+@dp.message_handler(commands=['all_id'])
+async def all_id(msg: Message):
+    users = db.select_all_users()
+    idlar = []
+    for user in users:
+        id = user[0]
+        idlar.append(id)
+    await msg.answer(idlar)
